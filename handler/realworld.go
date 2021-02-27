@@ -2,17 +2,46 @@ package handler
 
 import (
 	"context"
-
-	log "github.com/micro/go-micro/v2/logger"
-
+	"fmt"
+	"realworld-example-app/internal/json"
 	realworld "realworld-example-app/proto/realworld"
+
+	"github.com/micro/go-micro/v2/errors"
+	log "github.com/micro/go-micro/v2/logger"
 )
 
 type Realworld struct{}
 
 // Call is a single request handler called via client.Call or the generated client code
 func (e *Realworld) Call(ctx context.Context, req *realworld.Request, rsp *realworld.Response) error {
-	log.Info("Received Realworld.Call request")
+	log.Info("Received Realworld.Call request", json.Stringify(req))
+
+	if req.Age < 0 {
+		// return a raw go error
+		// client should get {
+		//  	"id":"go.micro.client",
+		//		"code":500,
+		//		"detail":"invalid age: -1",
+		// 		"status":"Internal Server Error"
+		// 	}
+		return fmt.Errorf("invalid age: %v", req.Age)
+	}
+
+	if req.Age == 0 {
+		// return a go-micro rpc aware custom error
+		// client should get {
+		// 		"id":"zero-age",
+		//		"code":400,
+		//		"detail":"age is 0, forget to set the age?",
+		//		"status":"Bad Request"
+		//	}
+		return errors.BadRequest("zero-age", "age is %v, forget to set the age?", req.Age)
+	}
+
+	if req.Age > 200 {
+		return errors.New("age-too-old", fmt.Sprintf("age is %v, too old!", req.Age), 520)
+	}
+
 	rsp.Msg = "Hello " + req.Name
 	return nil
 }
