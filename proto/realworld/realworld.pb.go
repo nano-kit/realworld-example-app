@@ -311,7 +311,9 @@ func init() {
 	proto.RegisterType((*Pong)(nil), "com.example.service.realworld.Pong")
 }
 
-func init() { proto.RegisterFile("proto/realworld/realworld.proto", fileDescriptor_9257436109765583) }
+func init() {
+	proto.RegisterFile("proto/realworld/realworld.proto", fileDescriptor_9257436109765583)
+}
 
 var fileDescriptor_9257436109765583 = []byte{
 	// 290 bytes of a gzipped FileDescriptorProto

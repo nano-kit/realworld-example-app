@@ -1,10 +1,11 @@
 package main
 
 import (
-	log "github.com/micro/go-micro/v2/logger"
-	"github.com/micro/go-micro/v2"
 	"realworld-example-app/handler"
 	"realworld-example-app/subscriber"
+
+	"github.com/micro/go-micro/v2"
+	log "github.com/micro/go-micro/v2/logger"
 
 	realworld "realworld-example-app/proto/realworld"
 )
