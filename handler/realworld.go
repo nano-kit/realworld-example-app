@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+	"math"
 	"realworld-example-app/internal/json"
 	realworld "realworld-example-app/proto/realworld"
 
@@ -43,6 +44,10 @@ func (e *Realworld) Call(ctx context.Context, req *realworld.Request, rsp *realw
 	}
 
 	rsp.Msg = "Hello " + req.Name
+	rsp.NumInt32 = math.MaxInt32
+	rsp.NumInt64 = math.MaxInt64
+	rsp.NumFloat = math.MaxFloat32
+	rsp.NumDouble = math.MaxFloat64
 	return nil
 }
 

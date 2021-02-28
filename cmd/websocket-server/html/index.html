@@ -1,0 +1,58 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+
+  <title>Realworld Examples</title>
+
+  <script src="https://unpkg.com/vue@3.0.6"></script>
+</head>
+
+<body>
+
+  <h2>Realworld.Call</h2>
+  <div id="call">
+    <p>服务器请求 name: <input v-model="name" />
+      age: <input v-model="age" />
+    </p>
+    <p>服务器响应 <span v-if="msg">msg: {{ msg }}</span>
+      <span v-if="err">err: {{ err }}</span>
+    </p>
+    <button v-on:click="call">Run</button>
+  </div>
+  <script src="js/call.js"></script>
+
+  <h2>Realworld.Stream</h2>
+  <div id="stream">
+    <p>服务器请求 count: <input v-model="count" /></p>
+    <p>服务器响应
+    <ol>
+      <li v-for="item in items">
+        {{ item }}
+      </li>
+    </ol>
+    </p>
+    <button v-on:click="call">Run</button>
+  </div>
+  <script src="js/stream.js"></script>
+
+  <h2>Realworld.PingPong</h2>
+  <div id="pingpong">
+    <p>服务器请求 stroke limit: <input v-model="limit" /></p>
+    <p>服务器响应
+    <ol>
+      <li v-for="item in items">
+        {{ item }}
+      </li>
+    </ol>
+    </p>
+    <button v-on:click="call">Run</button>
+  </div>
+  <script src="js/pingpong.js"></script>
+
+  <script src="js/util.js"></script>
+</body>
+
+</html>

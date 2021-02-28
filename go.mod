@@ -10,6 +10,7 @@ replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
 replace github.com/micro/go-micro/v2 => github.com/nano-kit/go-micro/v2 v2.10.0
 
 require (
+	github.com/gobwas/ws v1.0.4
 	github.com/golang/protobuf v1.4.3
 	github.com/json-iterator/go v1.1.10
 	github.com/micro/go-micro/v2 v2.0.0-00010101000000-000000000000

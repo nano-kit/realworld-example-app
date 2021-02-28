@@ -19,6 +19,10 @@ message Request {
 
 message Response {
 	string msg = 1;
+	int32 num_int32 = 2;
+	int64 num_int64 = 3;
+	float num_float = 4;
+	double num_double = 5;
 }
 
 message StreamingRequest {
