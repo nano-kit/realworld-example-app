@@ -7,6 +7,7 @@ import (
 	"realworld-example-app/internal/json"
 	realworld "realworld-example-app/proto/realworld"
 
+	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
 )
@@ -15,7 +16,8 @@ type Realworld struct{}
 
 // Call is a single request handler called via client.Call or the generated client code
 func (e *Realworld) Call(ctx context.Context, req *realworld.Request, rsp *realworld.Response) error {
-	log.Info("Received Realworld.Call request", json.Stringify(req))
+	acc, err := auth.AccountFromContext(ctx)
+	log.Infof("Received Realworld.Call request %v from account %+v, err=%v", json.Stringify(req), acc, err)
 
 	if req.Age < 0 {
 		// return a raw go error
