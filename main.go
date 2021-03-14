@@ -22,6 +22,7 @@ func main() {
 
 	// Register Handler
 	realworld.RegisterRealworldHandler(service.Server(), new(handler.Realworld))
+	realworld.RegisterClubhouseHandler(service.Server(), handler.NewClubhouse())
 
 	// Register Struct as Subscriber
 	micro.RegisterSubscriber("com.example.service.realworld", service.Server(), new(subscriber.Realworld))

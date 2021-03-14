@@ -8,6 +8,11 @@ service Realworld {
 	rpc PingPong(stream Ping) returns (stream Pong) {}
 }
 
+service Clubhouse {
+	rpc Publish(PublishReq) returns (PublishResp) {}
+	rpc Subscribe(stream Heartbeat) returns (stream ServerPush) {}
+}
+
 message Message {
 	string say = 1;
 }
@@ -39,4 +44,29 @@ message Ping {
 
 message Pong {
 	int64 stroke = 1;
+}
+
+message PublishReq {
+	PublishNote publish_note = 1;
+}
+
+message PublishResp {
+}
+
+message Heartbeat {
+	string token = 1;
+}
+
+message ServerPush {
+	enum Type {
+		HEARTBEAT = 0;
+		PUBLISH_NOTE = 1;
+	}
+	Type t = 1;
+	PublishNote publish_note = 2;
+}
+
+message PublishNote {
+	string topic = 1;
+	string text = 2;
 }

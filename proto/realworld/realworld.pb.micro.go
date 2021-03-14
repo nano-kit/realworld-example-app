@@ -282,3 +282,161 @@ func (x *realworldPingPongStream) Recv() (*Ping, error) {
 	}
 	return m, nil
 }
+
+// Api Endpoints for Clubhouse service
+
+func NewClubhouseEndpoints() []*api.Endpoint {
+	return []*api.Endpoint{}
+}
+
+// Client API for Clubhouse service
+
+type ClubhouseService interface {
+	Publish(ctx context.Context, in *PublishReq, opts ...client.CallOption) (*PublishResp, error)
+	Subscribe(ctx context.Context, opts ...client.CallOption) (Clubhouse_SubscribeService, error)
+}
+
+type clubhouseService struct {
+	c    client.Client
+	name string
+}
+
+func NewClubhouseService(name string, c client.Client) ClubhouseService {
+	return &clubhouseService{
+		c:    c,
+		name: name,
+	}
+}
+
+func (c *clubhouseService) Publish(ctx context.Context, in *PublishReq, opts ...client.CallOption) (*PublishResp, error) {
+	req := c.c.NewRequest(c.name, "Clubhouse.Publish", in)
+	out := new(PublishResp)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clubhouseService) Subscribe(ctx context.Context, opts ...client.CallOption) (Clubhouse_SubscribeService, error) {
+	req := c.c.NewRequest(c.name, "Clubhouse.Subscribe", &Heartbeat{})
+	stream, err := c.c.Stream(ctx, req, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &clubhouseServiceSubscribe{stream}, nil
+}
+
+type Clubhouse_SubscribeService interface {
+	Context() context.Context
+	SendMsg(interface{}) error
+	RecvMsg(interface{}) error
+	Close() error
+	Send(*Heartbeat) error
+	Recv() (*ServerPush, error)
+}
+
+type clubhouseServiceSubscribe struct {
+	stream client.Stream
+}
+
+func (x *clubhouseServiceSubscribe) Close() error {
+	return x.stream.Close()
+}
+
+func (x *clubhouseServiceSubscribe) Context() context.Context {
+	return x.stream.Context()
+}
+
+func (x *clubhouseServiceSubscribe) SendMsg(m interface{}) error {
+	return x.stream.Send(m)
+}
+
+func (x *clubhouseServiceSubscribe) RecvMsg(m interface{}) error {
+	return x.stream.Recv(m)
+}
+
+func (x *clubhouseServiceSubscribe) Send(m *Heartbeat) error {
+	return x.stream.Send(m)
+}
+
+func (x *clubhouseServiceSubscribe) Recv() (*ServerPush, error) {
+	m := new(ServerPush)
+	err := x.stream.Recv(m)
+	if err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// Server API for Clubhouse service
+
+type ClubhouseHandler interface {
+	Publish(context.Context, *PublishReq, *PublishResp) error
+	Subscribe(context.Context, Clubhouse_SubscribeStream) error
+}
+
+func RegisterClubhouseHandler(s server.Server, hdlr ClubhouseHandler, opts ...server.HandlerOption) error {
+	type clubhouse interface {
+		Publish(ctx context.Context, in *PublishReq, out *PublishResp) error
+		Subscribe(ctx context.Context, stream server.Stream) error
+	}
+	type Clubhouse struct {
+		clubhouse
+	}
+	h := &clubhouseHandler{hdlr}
+	return s.Handle(s.NewHandler(&Clubhouse{h}, opts...))
+}
+
+type clubhouseHandler struct {
+	ClubhouseHandler
+}
+
+func (h *clubhouseHandler) Publish(ctx context.Context, in *PublishReq, out *PublishResp) error {
+	return h.ClubhouseHandler.Publish(ctx, in, out)
+}
+
+func (h *clubhouseHandler) Subscribe(ctx context.Context, stream server.Stream) error {
+	return h.ClubhouseHandler.Subscribe(ctx, &clubhouseSubscribeStream{stream})
+}
+
+type Clubhouse_SubscribeStream interface {
+	Context() context.Context
+	SendMsg(interface{}) error
+	RecvMsg(interface{}) error
+	Close() error
+	Send(*ServerPush) error
+	Recv() (*Heartbeat, error)
+}
+
+type clubhouseSubscribeStream struct {
+	stream server.Stream
+}
+
+func (x *clubhouseSubscribeStream) Close() error {
+	return x.stream.Close()
+}
+
+func (x *clubhouseSubscribeStream) Context() context.Context {
+	return x.stream.Context()
+}
+
+func (x *clubhouseSubscribeStream) SendMsg(m interface{}) error {
+	return x.stream.Send(m)
+}
+
+func (x *clubhouseSubscribeStream) RecvMsg(m interface{}) error {
+	return x.stream.Recv(m)
+}
+
+func (x *clubhouseSubscribeStream) Send(m *ServerPush) error {
+	return x.stream.Send(m)
+}
+
+func (x *clubhouseSubscribeStream) Recv() (*Heartbeat, error) {
+	m := new(Heartbeat)
+	if err := x.stream.Recv(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
