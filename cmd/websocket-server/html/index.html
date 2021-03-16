@@ -4,53 +4,125 @@
 
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Realworld Examples</title>
 
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
   <script src="https://unpkg.com/vue@3.0.6"></script>
 </head>
 
 <body>
+  <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="https://nano-kit.github.io">
+        <img src="image/bulma-logo.png" width="112" height="28">
+      </a>
 
-  <h2>Realworld.Call</h2>
-  <div id="call">
-    <p>服务器请求 name: <input v-model="name" />
-      age: <input v-model="age" />
-    </p>
-    <p>服务器响应 <span v-if="msg">msg: {{ msg }}</span>
-      <span v-if="err">err: {{ err }}</span>
-    </p>
-    <button v-on:click="call">Run</button>
-  </div>
-  <script src="js/call.js"></script>
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
 
-  <h2>Realworld.Stream</h2>
-  <div id="stream">
-    <p>服务器请求 count: <input v-model="count" /></p>
-    <p>服务器响应
-    <ol>
-      <li v-for="item in items">
-        {{ item }}
-      </li>
-    </ol>
-    </p>
-    <button v-on:click="call">Run</button>
-  </div>
-  <script src="js/stream.js"></script>
+    <div id="navbarBasicExample" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item">
+          Home
+        </a>
 
-  <h2>Realworld.PingPong</h2>
-  <div id="pingpong">
-    <p>服务器请求 stroke limit: <input v-model="limit" /></p>
-    <p>服务器响应
-    <ol>
-      <li v-for="item in items">
-        {{ item }}
-      </li>
-    </ol>
-    </p>
-    <button v-on:click="call">Run</button>
+        <a class="navbar-item">
+          Documentation
+        </a>
+
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link">
+            More
+          </a>
+
+          <div class="navbar-dropdown">
+            <a class="navbar-item">
+              About
+            </a>
+            <a class="navbar-item">
+              Jobs
+            </a>
+            <a class="navbar-item">
+              Contact
+            </a>
+            <hr class="navbar-divider">
+            <a class="navbar-item">
+              Report an issue
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="buttons">
+            <a class="button is-primary">
+              <strong>Sign up</strong>
+            </a>
+            <a class="button is-light">
+              Log in
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="columns is-desktop is-multiline mt-3">
+
+    <div class="column is-half">
+      <div id="call" class="box">
+        <h2>Realworld.Call</h2>
+        <p>服务器请求 name: <input v-model="name" />
+          age: <input v-model="age" />
+        </p>
+        <p>服务器响应 <span v-if="msg">msg: {{ msg }}</span>
+          <span v-if="err">err: {{ err }}</span>
+        </p>
+        <button v-on:click="call">Run</button>
+      </div>
+      <script src="js/call.js"></script>
+    </div>
+
+    <div class="column is-half">
+      <div id="stream" class="box">
+        <h2>Realworld.Stream</h2>
+        <p>服务器请求 count: <input v-model="count" /></p>
+        <p>服务器响应
+        <ol>
+          <li v-for="item in items">
+            {{ item }}
+          </li>
+        </ol>
+        </p>
+        <button v-on:click="call">Run</button>
+      </div>
+      <script src="js/stream.js"></script>
+    </div>
+
+    <div class="column is-half">
+      <div id="pingpong" class="box">
+        <h2>Realworld.PingPong</h2>
+        <p>服务器请求 stroke limit: <input v-model="limit" /></p>
+        <p>服务器响应
+        <ol>
+          <li v-for="item in items">
+            {{ item }}
+          </li>
+        </ol>
+        </p>
+        <button v-on:click="call">Run</button>
+      </div>
+      <script src="js/pingpong.js"></script>
+    </div>
+
   </div>
-  <script src="js/pingpong.js"></script>
 
   <script src="js/util.js"></script>
 </body>
