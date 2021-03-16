@@ -13,20 +13,20 @@
 </head>
 
 <body>
-  <nav class="navbar" role="navigation" aria-label="main navigation">
+  <nav id="nav" class="navbar" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <a class="navbar-item" href="https://nano-kit.github.io">
         <img src="image/bulma-logo.png" width="112" height="28">
       </a>
 
-      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <a role="button" class="navbar-burger" v-bind:class="{'is-active': isActive}" v-on:click="toggle" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
         <span aria-hidden="true"></span>
         <span aria-hidden="true"></span>
         <span aria-hidden="true"></span>
       </a>
     </div>
 
-    <div id="navbarBasicExample" class="navbar-menu">
+    <div id="navbarBasicExample" class="navbar-menu" v-bind:class="{'is-active': isActive}">
       <div class="navbar-start">
         <a class="navbar-item">
           Home
@@ -73,12 +73,14 @@
       </div>
     </div>
   </nav>
+  <script src="js/nav.js"></script>
 
   <div class="columns is-desktop is-multiline mt-3">
 
     <div class="column is-half">
       <div id="call" class="box">
-        <h2>Realworld.Call</h2>
+        <h2 class="title">Realworld.Call</h2>
+        <h3 class="subtitle">Simple RPC</h3>
         <p>服务器请求 name: <input v-model="name" />
           age: <input v-model="age" />
         </p>
@@ -92,7 +94,8 @@
 
     <div class="column is-half">
       <div id="stream" class="box">
-        <h2>Realworld.Stream</h2>
+        <h2 class="title">Realworld.Stream</h2>
+        <h3 class="subtitle">Server-side streaming RPC</h3>
         <p>服务器请求 count: <input v-model="count" /></p>
         <p>服务器响应
         <ol>
@@ -108,7 +111,8 @@
 
     <div class="column is-half">
       <div id="pingpong" class="box">
-        <h2>Realworld.PingPong</h2>
+        <h2 class="title">Realworld.PingPong</h2>
+        <h3 class="subtitle">Bidirectional streaming RPC</h3>
         <p>服务器请求 stroke limit: <input v-model="limit" /></p>
         <p>服务器响应
         <ol>
