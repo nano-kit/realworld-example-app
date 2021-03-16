@@ -14,14 +14,20 @@ async function postData(servicePath, data = {}) {
         referrerPolicy: 'no-referrer',
         body: JSON.stringify(data)
     })
-    const body = await response.json()
-    return new Promise((resolve, reject) => {
-        if (isError(body)) {
-            reject(body)
-        } else {
-            resolve(body)
-        }
-    })
+    try {
+        const body = await response.json()
+        return new Promise((resolve, reject) => {
+            if (isError(body)) {
+                reject(body)
+            } else {
+                resolve(body)
+            }
+        })
+    } catch (e) { // the response body to parse is not valid JSON
+        return new Promise((resolve, reject) => {
+            reject({ id: response.status, detail: response.statusText })
+        })
+    }
 }
 
 function isError(body) {
