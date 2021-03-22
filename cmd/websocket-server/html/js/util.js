@@ -112,7 +112,7 @@ function checkAccessToken(tokenString) {
         return null
     }
     try {
-        const token = JSON.parse(window.atob(parts[1]))
+        const token = JSON.parse(window.atob(base64DecodeUrl(parts[1])))
         if (token.exp * 1000 > Date.now()) {
             return token
         }
@@ -120,4 +120,29 @@ function checkAccessToken(tokenString) {
     } catch (e) {
         return null
     }
+}
+
+/**
+ * use this to make a base64 encoded string URL friendly,
+ * i.e. '+' and '/' are replaced with '-' and '_' also any trailing '='
+ * characters are removed
+ *
+ * @param {String} str the encoded string
+ * @returns {String} the URL friendly encoded String
+ */
+ function base64EncodeUrl(str){
+    return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
+}
+
+/**
+ * Use this to recreate a base64 encoded string that was made URL friendly
+ * using base64EncodeurlFriendly.
+ * '-' and '_' are replaced with '+' and '/' and also it is padded with '+'
+ *
+ * @param {String} str the encoded string
+ * @returns {String} the URL friendly encoded String
+ */
+function base64DecodeUrl(str){
+    str = (str + '===').slice(0, str.length + (str.length % 4));
+    return str.replace(/-/g, '+').replace(/_/g, '/');
 }
