@@ -22,7 +22,7 @@ function doCall(self) {
       self.msg = res.msg
       self.err = ''
     }).catch(err => {
-      self.err = '#' + err.id + ' ' + err.detail
+      self.err = err
       self.msg = ''
     })
 }

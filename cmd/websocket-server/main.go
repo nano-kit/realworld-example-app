@@ -15,6 +15,7 @@ import (
 	"github.com/micro/go-micro/v2/client/grpc"
 	"github.com/micro/go-micro/v2/config"
 	"github.com/micro/go-micro/v2/config/source/file"
+	"github.com/micro/go-micro/v2/errors"
 	log "github.com/micro/go-micro/v2/logger"
 	"github.com/micro/go-micro/v2/metadata"
 	"github.com/micro/go-micro/v2/store"
@@ -81,7 +82,7 @@ func (t *tokenRefresher) Init(cc client.Client) {
 func (t *tokenRefresher) Token(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("refresh-token")
 	if err != nil {
-		http.Error(w, "not login", http.StatusUnauthorized)
+		http.Error(w, errors.Unauthorized("need-login", "need login to proceed with the API").Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -284,6 +285,9 @@ type GitHubUser struct {
 func (o *oauthGithub) getUserProfile(token string) (*GitHubUser, error) {
 	u := "https://api.github.com/user"
 	r, err := http.NewRequest("GET", u, nil)
+	if err != nil {
+		return nil, err
+	}
 	r.Header.Set("Accept", "application/json")
 	r.Header.Set("Authorization", "token "+token)
 	res, err := o.hc.Do(r)

@@ -1,5 +1,15 @@
+// API 网关的 URL 和 “服务路径”
 const serverURL = 'http://127.0.0.1:8080/realworld/'
 
+// postData 调用一次后端服务的 API
+// 输入参数：
+//     - servicePath 服务的 API 接口全名，如 'Realworld/Call'
+//     - data 服务的 API 的输入参数，是一个 JSON 对象，具体规格参考服务的 protobuf 协议
+// 成功返回：
+//     服务的 API 的响应参数，是一个 JSON 对象，具体规格参考服务的 protobuf 协议
+// 出错返回：
+//     错误可以是一个 JSON 对象，具体规格为 {"id":"", "code":1, "detail":"", "status":""}
+//     也可以是其它任何类型，如 "TypeError: Failed to fetch"
 async function postData(servicePath, data = {}) {
     const url = serverURL + servicePath
     const token = await getAccessToken()
@@ -40,8 +50,15 @@ function isError(body) {
     }
 }
 
+// 在内存中保存的 accessToken
+// https://dev.to/cotter/localstorage-vs-cookies-all-you-need-to-know-about-storing-jwt-tokens-securely-in-the-front-end-15id
 var accessToken = ''
 
+// 更新 accessToken
+// 成功返回：
+//     accessToken 类型为 string
+// 出错返回：
+//     其它任何类型
 async function getAccessToken() {
     const token = checkAccessToken(accessToken)
     if (token != null) {
@@ -68,6 +85,27 @@ async function getAccessToken() {
     })
 }
 
+// 校验 accessToken 是否在有效期内
+// 成功返回：
+//     token 对象，规格为
+// {
+//   "type": "user",
+//   "scopes": [
+//     "basic"
+//   ],
+//   "metadata": {
+//     "AvatarUrl": "https://avatars.githubusercontent.com/u/5406765?v=4",
+//     "Company": "",
+//     "Email": "aclisp@gmail.com",
+//     "Location": "Guangzhou, China",
+//     "Name": "Homer Huang"
+//   },
+//   "exp": 1616413818,
+//   "iss": "com.example",
+//   "sub": "aclisp"
+// }
+// 出错返回：
+//     null
 function checkAccessToken(tokenString) {
     const parts = tokenString.split('.')
     if (parts.length != 3) {
