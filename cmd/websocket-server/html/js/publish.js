@@ -2,7 +2,7 @@ const Publish = {
   data() {
     return {
       topic: '',
-      test: '',
+      text: '',
       err: ''
     }
   },
