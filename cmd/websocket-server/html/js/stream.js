@@ -1,7 +1,7 @@
 const Stream = {
   data() {
     return {
-      count: 0,
+      count: 3,
       items: []
     }
   },

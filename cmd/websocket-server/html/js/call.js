@@ -1,8 +1,8 @@
 const Call = {
   data() {
     return {
-      name: '',
-      age: 0,
+      name: 'Jack',
+      age: 1,
       msg: '',
       err: ''
     }
