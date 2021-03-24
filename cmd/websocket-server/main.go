@@ -52,6 +52,7 @@ func main() {
 
 	// setup route of token refresher
 	r.HandleFunc("/token", tokenRef.Token)
+	r.HandleFunc("/logout", tokenRef.Logout)
 
 	// setup route of html pages
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./html")))
@@ -95,6 +96,18 @@ func (t *tokenRefresher) Token(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write([]byte(res.GetToken().GetAccessToken()))
+}
+
+func (t *tokenRefresher) Logout(w http.ResponseWriter, r *http.Request) {
+	cookie := http.Cookie{
+		Name:   "refresh-token",
+		Path:   "/token",
+		MaxAge: -1,
+	}
+	http.SetCookie(w, &cookie)
+
+	// redirect to the index page
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 type oauthGithub struct {
@@ -236,13 +249,13 @@ func (o *oauthGithub) Callback(w http.ResponseWriter, r *http.Request) {
 		Value:    mytoken.RefreshToken,
 		Path:     "/token",
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
 	}
 	http.SetCookie(w, &cookie)
 
 	// redirect to the index page
-
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func (o *oauthGithub) getAccessToken(code, state string) (token string, err error) {

@@ -36,10 +36,19 @@
       </div>
 
       <div class="navbar-end">
-        <div class="navbar-item">
-          <div class="buttons">
-            <a class="button is-light" href="/oauth/github/login">
+        <div class="navbar-item has-dropdown is-hoverable">
+          <div class="navbar-link is-arrowless" v-if="account">
+            <img v-bind:src="account.AvatarUrl" alt="" width="28" height="28">
+            <div class="ml-1">{{account.Name}}</div>
+          </div>
+          <div class="buttons" v-else>
+            <a class="button is-primary" href="/oauth/github/login">
               Login with GitHub
+            </a>
+          </div>
+          <div class="navbar-dropdown" v-if="account">
+            <a class="navbar-item" href="/logout">
+              Sign Out
             </a>
           </div>
         </div>
