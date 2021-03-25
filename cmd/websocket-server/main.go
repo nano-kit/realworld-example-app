@@ -44,10 +44,10 @@ func main() {
 	// setup route of oauth github
 	oauthGithubRouter := r.PathPrefix("/oauth/github").Subrouter()
 	oauthGithubRouter.
-		HandleFunc("/login", oauthGithub.Login).
+		Handle("/login", oauthHandler(oauthGithub.Login)).
 		Methods(http.MethodGet)
 	oauthGithubRouter.
-		HandleFunc("/callback", oauthGithub.Callback).
+		Handle("/callback", oauthHandler(oauthGithub.Callback)).
 		Methods(http.MethodGet)
 
 	// setup route of token refresher
@@ -119,6 +119,14 @@ type oauthGithub struct {
 	cc    client.Client
 }
 
+type oauthHandler func(http.ResponseWriter, *http.Request) error
+
+func (fn oauthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if err := fn(w, r); err != nil {
+		http.Error(w, err.Error(), 500)
+	}
+}
+
 func (o *oauthGithub) Init(hc *http.Client, cc client.Client) {
 	// read client secrets from file, which can not be put to github
 	conf, err := config.NewConfig(
@@ -156,7 +164,9 @@ func (a *clientWrapper) Call(ctx context.Context, req client.Request, rsp interf
 	return a.Client.Call(ctx, req, rsp, opts...)
 }
 
-func (o *oauthGithub) Login(w http.ResponseWriter, r *http.Request) {
+var erroauth = errors.New("oauth-error", "Generic oauth error, please check the server log.", 500)
+
+func (o *oauthGithub) Login(w http.ResponseWriter, r *http.Request) error {
 	// generate an unguessable random string as state
 	state := uuid.NewString()
 	record := &store.Record{
@@ -165,7 +175,7 @@ func (o *oauthGithub) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	if err := o.state.Write(record); err != nil {
 		log.Errorf("can not save state: %v", err)
-		return
+		return erroauth
 	}
 
 	u, _ := url.Parse("https://github.com/login/oauth/authorize")
@@ -175,9 +185,10 @@ func (o *oauthGithub) Login(w http.ResponseWriter, r *http.Request) {
 	u.RawQuery = q.Encode()
 
 	http.Redirect(w, r, u.String(), http.StatusFound)
+	return nil
 }
 
-func (o *oauthGithub) Callback(w http.ResponseWriter, r *http.Request) {
+func (o *oauthGithub) Callback(w http.ResponseWriter, r *http.Request) error {
 	// get code and state
 	q := r.URL.Query()
 	code := q.Get("code")
@@ -186,7 +197,7 @@ func (o *oauthGithub) Callback(w http.ResponseWriter, r *http.Request) {
 	// check state
 	if _, err := o.state.Read(state); err != nil {
 		log.Errorf("validate state failure: %v", err)
-		return
+		return erroauth
 	}
 	o.state.Delete(state)
 
@@ -194,53 +205,29 @@ func (o *oauthGithub) Callback(w http.ResponseWriter, r *http.Request) {
 	token, err := o.getAccessToken(code, state)
 	if err != nil {
 		log.Errorf("exchange for an access token: %v", err)
-		return
+		return erroauth
 	}
 
 	// get user profile using the access token
 	gu, err := o.getUserProfile(token)
 	if err != nil {
 		log.Errorf("get github user profile: %v", err)
-		return
+		return erroauth
 	}
 
 	// create or get my user account
 	acc, err := o.getUserAccount(gu)
 	if err != nil {
 		log.Errorf("get my user account: %v", err)
-		return
+		return erroauth
 	}
 
 	// get my token by account
 	mytoken, err := o.getUserToken(acc)
 	if err != nil {
 		log.Errorf("get my token: %v", err)
+		return erroauth
 	}
-	/*
-		log.Infof(`Login with GitHub successfully,
-		ID: %s
-		Name: %s
-		Email: %s
-		Avatar: %s
-		Location: %s
-		Company: %s
-		GitHub Access Token: %s
-		My Access Token: %s
-		My Refresh Token: %s
-		My Access Token Expiry: %s
-		My Password: %s`,
-			acc.Id,
-			acc.Metadata["Name"],
-			acc.Metadata["Email"],
-			acc.Metadata["AvatarUrl"],
-			acc.Metadata["Location"],
-			acc.Metadata["Company"],
-			token,
-			mytoken.AccessToken,
-			mytoken.RefreshToken,
-			time.Unix(mytoken.Expiry, 0).Local().Format(time.RFC3339),
-			acc.Secret)
-	*/
 
 	// save token to cookie
 	// https://dev.to/cotter/localstorage-vs-cookies-all-you-need-to-know-about-storing-jwt-tokens-securely-in-the-front-end-15id
@@ -256,6 +243,7 @@ func (o *oauthGithub) Callback(w http.ResponseWriter, r *http.Request) {
 
 	// redirect to the index page
 	http.Redirect(w, r, "/", http.StatusFound)
+	return nil
 }
 
 func (o *oauthGithub) getAccessToken(code, state string) (token string, err error) {
