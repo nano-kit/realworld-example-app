@@ -110,6 +110,17 @@
     </div>
 
     <div class="column is-half">
+      <div id="upload" class="box">
+        <h2 class="title">Realworld.Upload</h2>
+        <h3 class="subtitle">Client-side streaming RPC</h3>
+        <p>服务器请求 <textarea rows="4" cols="50" v-model="input"></textarea></p>
+        <p>服务器响应 <textarea rows="4" cols="50" readonly>{{ output }}</textarea></p>
+        <button v-on:click="call">Run</button>
+      </div>
+      <script src="js/upload.js"></script>
+    </div>
+
+    <div class="column is-half">
       <div id="subscribe" class="box">
         <h2 class="title">Clubhouse.Subscribe</h2>
         <h3 class="subtitle">Long-lived streaming</h3>

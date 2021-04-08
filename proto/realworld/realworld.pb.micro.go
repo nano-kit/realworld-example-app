@@ -45,6 +45,7 @@ type RealworldService interface {
 	Call(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error)
 	Stream(ctx context.Context, in *StreamingRequest, opts ...client.CallOption) (Realworld_StreamService, error)
 	PingPong(ctx context.Context, opts ...client.CallOption) (Realworld_PingPongService, error)
+	Upload(ctx context.Context, opts ...client.CallOption) (Realworld_UploadService, error)
 }
 
 type realworldService struct {
@@ -169,12 +170,54 @@ func (x *realworldServicePingPong) Recv() (*Pong, error) {
 	return m, nil
 }
 
+func (c *realworldService) Upload(ctx context.Context, opts ...client.CallOption) (Realworld_UploadService, error) {
+	req := c.c.NewRequest(c.name, "Realworld.Upload", &DataPack{})
+	stream, err := c.c.Stream(ctx, req, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &realworldServiceUpload{stream}, nil
+}
+
+type Realworld_UploadService interface {
+	Context() context.Context
+	SendMsg(interface{}) error
+	RecvMsg(interface{}) error
+	Close() error
+	Send(*DataPack) error
+}
+
+type realworldServiceUpload struct {
+	stream client.Stream
+}
+
+func (x *realworldServiceUpload) Close() error {
+	return x.stream.Close()
+}
+
+func (x *realworldServiceUpload) Context() context.Context {
+	return x.stream.Context()
+}
+
+func (x *realworldServiceUpload) SendMsg(m interface{}) error {
+	return x.stream.Send(m)
+}
+
+func (x *realworldServiceUpload) RecvMsg(m interface{}) error {
+	return x.stream.Recv(m)
+}
+
+func (x *realworldServiceUpload) Send(m *DataPack) error {
+	return x.stream.Send(m)
+}
+
 // Server API for Realworld service
 
 type RealworldHandler interface {
 	Call(context.Context, *Request, *Response) error
 	Stream(context.Context, *StreamingRequest, Realworld_StreamStream) error
 	PingPong(context.Context, Realworld_PingPongStream) error
+	Upload(context.Context, Realworld_UploadStream) error
 }
 
 func RegisterRealworldHandler(s server.Server, hdlr RealworldHandler, opts ...server.HandlerOption) error {
@@ -182,6 +225,7 @@ func RegisterRealworldHandler(s server.Server, hdlr RealworldHandler, opts ...se
 		Call(ctx context.Context, in *Request, out *Response) error
 		Stream(ctx context.Context, stream server.Stream) error
 		PingPong(ctx context.Context, stream server.Stream) error
+		Upload(ctx context.Context, stream server.Stream) error
 	}
 	type Realworld struct {
 		realworld
@@ -277,6 +321,46 @@ func (x *realworldPingPongStream) Send(m *Pong) error {
 
 func (x *realworldPingPongStream) Recv() (*Ping, error) {
 	m := new(Ping)
+	if err := x.stream.Recv(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (h *realworldHandler) Upload(ctx context.Context, stream server.Stream) error {
+	return h.RealworldHandler.Upload(ctx, &realworldUploadStream{stream})
+}
+
+type Realworld_UploadStream interface {
+	Context() context.Context
+	SendMsg(interface{}) error
+	RecvMsg(interface{}) error
+	Close() error
+	Recv() (*DataPack, error)
+}
+
+type realworldUploadStream struct {
+	stream server.Stream
+}
+
+func (x *realworldUploadStream) Close() error {
+	return x.stream.Close()
+}
+
+func (x *realworldUploadStream) Context() context.Context {
+	return x.stream.Context()
+}
+
+func (x *realworldUploadStream) SendMsg(m interface{}) error {
+	return x.stream.Send(m)
+}
+
+func (x *realworldUploadStream) RecvMsg(m interface{}) error {
+	return x.stream.Recv(m)
+}
+
+func (x *realworldUploadStream) Recv() (*DataPack, error) {
+	m := new(DataPack)
 	if err := x.stream.Recv(m); err != nil {
 		return nil, err
 	}

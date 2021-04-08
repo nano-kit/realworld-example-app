@@ -6,6 +6,7 @@ import (
 	"math"
 	"realworld-example-app/internal/json"
 	realworld "realworld-example-app/proto/realworld"
+	"strings"
 
 	"github.com/micro/go-micro/v2/auth"
 	"github.com/micro/go-micro/v2/errors"
@@ -81,4 +82,22 @@ func (e *Realworld) PingPong(ctx context.Context, stream realworld.Realworld_Pin
 			return err
 		}
 	}
+}
+
+func (e *Realworld) Upload(ctx context.Context, stream realworld.Realworld_UploadStream) error {
+	var file []string
+	for {
+		datapack, err := stream.Recv()
+		if err != nil {
+			return err
+		}
+		file = append(file, datapack.Line)
+		if datapack.Done {
+			break
+		}
+	}
+	return stream.SendMsg(&realworld.UploadResp{
+		TotalLines: int64(len(file)),
+		File:       strings.Join(file, "\n"),
+	})
 }

@@ -35,4 +35,21 @@ func main() {
 		}
 	}
 	stream.Close()
+
+	upload, err := service.Upload(ctx)
+	if err != nil {
+		panic(err)
+	}
+	for i := 0; i < 5; i++ {
+		if err := upload.Send(&realworld.DataPack{Line: fmt.Sprintf("%v abcd", i+1)}); err != nil {
+			panic(err)
+		}
+	}
+	upload.Send(&realworld.DataPack{Done: true})
+	var uploadResp realworld.UploadResp
+	if err := upload.RecvMsg(&uploadResp); err != nil {
+		panic(err)
+	}
+	fmt.Printf("uploaded total %v lines:\n", uploadResp.TotalLines)
+	fmt.Print(uploadResp.File)
 }

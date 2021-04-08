@@ -6,6 +6,7 @@ service Realworld {
 	rpc Call(Request) returns (Response) {}
 	rpc Stream(StreamingRequest) returns (stream StreamingResponse) {}
 	rpc PingPong(stream Ping) returns (stream Pong) {}
+	rpc Upload(stream DataPack) returns (UploadResp) {}
 }
 
 service Clubhouse {
@@ -44,6 +45,16 @@ message Ping {
 
 message Pong {
 	int64 stroke = 1;
+}
+
+message DataPack {
+	string line = 1;
+	bool done = 2;
+}
+
+message UploadResp {
+	int64 total_lines = 1;
+	string file = 2;
 }
 
 message PublishReq {
