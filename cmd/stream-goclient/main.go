@@ -13,6 +13,19 @@ func main() {
 	client := gcli.NewClient()
 	service := realworld.NewRealworldService("com.example.service.realworld", client)
 	ctx := context.Background()
+	resp, err := service.Call(ctx, &realworld.Request{
+		Age: -1,
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(resp)
+}
+
+func main1() {
+	client := gcli.NewClient()
+	service := realworld.NewRealworldService("com.example.service.realworld", client)
+	ctx := context.Background()
 	stream, err := service.PingPong(ctx)
 	if err != nil {
 		panic(err)
